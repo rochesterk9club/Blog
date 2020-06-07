@@ -1,6 +1,6 @@
 ---
 templateKey: blog-post
-title: Test
+title: Test Page
 date: 2020-06-07T20:56:22.188Z
 description: Test blog
 featuredpost: true
