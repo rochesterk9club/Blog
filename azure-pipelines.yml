@@ -1,0 +1,75 @@
+name: $(TeamProject)_$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
+
+steps:
+- powershell: |
+   New-Item -Path $(System.DefaultWorkingDirectory) -Name ".env.production" -Force -Value @'   
+   firebase_apiKey = $(firebase_apiKey)
+   firebase_authDomain = $(firebase_authDomain)
+   firebase_databaseURL = $(firebase_databaseURL)
+   firebase_projectId = $(firebase_projectId)
+   firebase_storageBucket = $(firebase_storageBucket)
+   firebase_messagingSenderId = $(firebase_messagingSenderId)
+   firebase_appId = $(firebase_appId)
+   firebase_publicKey = $(firebase_publicKey)
+   appInsightsConnectionString = $(appInsightsConnectionString)   
+   firebase_serverKey = $(firebase_serverKey)
+   BUILD_NUMBER = $(BUILD_NUMBER)
+   RELEASE_URL = $(RELEASE_URL)
+   HOSTNAME = $(HOSTNAME)
+   TwitterHandle = $(TwitterHandle)
+   AuthorName = $(AuthorName)
+   FacebookPage = $(FacebookPage)
+   FacebookAppID = $(FacebookAppID)
+   LinkedInPage = $(LinkedInPage)
+   NewContactSubmissionURL = $(NewContactSubmissionURL)
+   NewSubscriberAPI = $(NewSubscriberAPI)
+   CmsAdminURL = $(CmsAdminURL)
+   BuildStatusBadge = $(BuildStatusBadge)
+   ReleaseStatusBadge = $(ReleaseStatusBadge)
+   '@
+  displayName: 'Create .env configuration file'
+
+- script: yarn install
+  displayName: 'Install App'
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+
+- script: yarn build
+  displayName: 'Build'
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  timeoutInMinutes: 4
+
+- script: yarn build
+  displayName: 'Build Retry'
+  condition: and(failed(), ne(variables['Build.Reason'], 'PullRequest'))
+  timeoutInMinutes: 4
+
+- powershell: |
+    $swPath = "./public/sw.js"
+    $content = Get-Content $swPath -Raw
+    $content = $content.Replace("`${process.env.firebase_messagingSenderId}", "$(firebase_messagingSenderId)")
+    $content = $content.Replace("`${process.env.firebase_apiKey}", "$(firebase_apiKey)")
+    $content = $content.Replace("`${process.env.firebase_authDomain}", "$(firebase_authDomain)")
+    $content = $content.Replace("`${process.env.firebase_databaseURL}", "$(firebase_databaseURL)")
+    $content = $content.Replace("`${process.env.firebase_projectId}", "$(firebase_projectId)")
+    $content = $content.Replace("`${process.env.firebase_storageBucket}", "$(firebase_storageBucket)")
+    $content = $content.Replace("`${process.env.firebase_messagingSenderId}", "$(firebase_messagingSenderId)")
+    $content = $content.Replace("`${process.env.firebase_appId}", "$(firebase_appId)")
+    $content = $content.Replace("process.env.BUILD_NUMBER", "'$(Build.BuildNumber)'")
+    Set-Content $swPath -Value $content -Verbose
+  displayName: 'Manual token replacement'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'public'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
