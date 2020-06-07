@@ -2,7 +2,7 @@ const isBrowser = typeof window !== `undefined`
 const isReadyForAuth = typeof _adalInstance !== `undefined`
 
 const adal = typeof _adalInstance !== `undefined` ?
-    {} : null;
+    _adalInstance : null;
 
 export const isLoggedIn = () => {
     if (!isBrowser) return false
