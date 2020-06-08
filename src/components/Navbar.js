@@ -1,8 +1,8 @@
 import React from 'react'
 import { Link } from 'gatsby'
 import github from '../img/github-icon.svg'
-import logo from '../img/NateDuff.com-w-l.png'
-import darkLogo from '../img/NateDuff.com-w-d.png'
+import logo from '../img/logo.png'
+import darkLogo from '../img/Rochester K9 Club LogoWhite.png'
 import DarkModeToggle from '../components/DarkModeToggle'
 import { isAdmin } from './Authorization'
 

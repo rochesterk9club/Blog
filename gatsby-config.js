@@ -12,10 +12,10 @@ module.exports = {
         name: "Rochester K9 Club Web App",
         short_name: "Rochester K9 Club",
         start_url: "/",
-        background_color: "#18453b",
-        theme_color: "#18453b",
+        background_color: "#44a1c2",
+        theme_color: "#44a1c2",
         display: "standalone",
-        icon: "src/img/logo-whitebackground.png",
+        icon: "src/img/Rochester K9 Club LogoWhite.png",
         crossOrigin: `use-credentials`,
         gcm_sender_id: "146740187852"
       },
